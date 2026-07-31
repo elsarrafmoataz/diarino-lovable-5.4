@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم DIAR TOK</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/cairo@latest/arabic-400-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/cairo@latest/arabic-700-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/cairo@latest/arabic-900-normal.css">
+<style>
+  *{box-sizing:border-box;font-family:'Cairo',sans-serif;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:#f4f6fb;color:#1a1f2e;min-height:100vh}
+  .layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+  .sidebar{background:linear-gradient(180deg,#0f172a 0%,#1e293b 100%);color:#e2e8f0;padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px;color:#fff;margin-bottom:8px}
+  .brand-dot{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#ec4899);display:grid;place-items:center;color:#fff;font-weight:900}
+  .brand-sub{font-size:11px;color:#94a3b8;margin-bottom:24px;padding-right:46px}
+  .nav{display:flex;flex-direction:column;gap:4px}
+  .nav button{background:transparent;border:0;color:#cbd5e1;text-align:right;padding:11px 14px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px;transition:.15s}
+  .nav button:hover{background:rgba(255,255,255,.06);color:#fff}
+  .nav button.active{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;box-shadow:0 8px 20px -8px #6366f1}
+  .nav .ico{width:20px;text-align:center}
+  .main{padding:28px 32px;overflow-x:hidden}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:16px;flex-wrap:wrap}
+  .top h1{margin:0;font-size:24px;font-weight:900}
+  .top .muted{color:#64748b;font-size:13px;margin-top:2px}
+  .admin-badge{display:flex;align-items:center;gap:10px;background:#fff;padding:8px 14px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.05);font-size:13px;font-weight:700}
+  .admin-badge .av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:grid;place-items:center;color:#fff;font-weight:900}
+  .page{display:none}
+  .page.active{display:block;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .grid{display:grid;gap:16px}
+  .stats{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  .card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid #eef1f6}
+  .stat h3{margin:0 0 6px;font-size:13px;color:#64748b;font-weight:700}
+  .stat .val{font-size:28px;font-weight:900;color:#0f172a}
+  .stat .delta{font-size:12px;font-weight:700;margin-top:4px}
+  .delta.up{color:#16a34a}.delta.down{color:#dc2626}
+  .stat .ico-badge{float:left;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:20px;color:#fff}
+  .b1{background:linear-gradient(135deg,#6366f1,#8b5cf6)}
+  .b2{background:linear-gradient(135deg,#10b981,#059669)}
+  .b3{background:linear-gradient(135deg,#f59e0b,#ef4444)}
+  .b4{background:linear-gradient(135deg,#25d366,#128c7e)}
+  .b5{background:linear-gradient(135deg,#ec4899,#f43f5e)}
+  .row2{grid-template-columns:2fr 1fr}
+  @media (max-width:900px){.row2{grid-template-columns:1fr}}
+  .card h2{margin:0 0 16px;font-size:16px;font-weight:900}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  .chip{background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer}
+  .chip.on{background:#0f172a;color:#fff;border-color:#0f172a}
+  .search{flex:1;min-width:180px;padding:9px 14px;border:1px solid #e2e8f0;border-radius:999px;font-size:13px;font-family:inherit;background:#f8fafc}
+  .search:focus{outline:none;border-color:#6366f1;background:#fff}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:12px 10px;text-align:right;border-bottom:1px solid #eef1f6;vertical-align:middle}
+  th{font-size:12px;color:#64748b;font-weight:700;background:#f8fafc;position:sticky;top:0}
+  tbody tr:hover{background:#fafbfd}
+  .thumb{width:44px;height:56px;border-radius:8px;object-fit:cover;background:#e2e8f0;display:inline-block;vertical-align:middle}
+  .cell-title{display:flex;align-items:center;gap:10px}
+  .cell-title b{display:block;margin-bottom:2px}
+  .cell-title small{color:#64748b}
+  .status{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800}
+  .s-pending{background:#fef3c7;color:#92400e}
+  .s-approved{background:#dcfce7;color:#166534}
+  .s-rejected{background:#fee2e2;color:#991b1b}
+  .s-live{background:#fce7f3;color:#9d174d}
+  .btn{padding:6px 12px;border-radius:8px;border:0;cursor:pointer;font-size:12px;font-weight:800;font-family:inherit;transition:.15s}
+  .btn:hover{transform:translateY(-1px)}
+  .btn-approve{background:#dcfce7;color:#166534}
+  .btn-reject{background:#fee2e2;color:#991b1b}
+  .btn-delete{background:#0f172a;color:#fff}
+  .btn-view{background:#e0e7ff;color:#3730a3}
+  .btn-primary{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:9px 18px;border-radius:10px}
+  .actions{display:flex;gap:6px;flex-wrap:wrap}
+  .empty{text-align:center;padding:40px;color:#64748b;font-size:14px}
+  .bar-chart{display:flex;align-items:flex-end;gap:10px;height:180px;padding:16px 0;border-bottom:1px dashed #e2e8f0}
+  .bar{flex:1;background:linear-gradient(180deg,#6366f1,#8b5cf6);border-radius:6px 6px 0 0;min-height:6px;position:relative;transition:.3s}
+  .bar:hover{opacity:.85}
+  .bar-labels{display:flex;gap:10px;margin-top:8px;color:#64748b;font-size:11px;font-weight:700}
+  .bar-labels span{flex:1;text-align:center}
+  .donut{position:relative;width:180px;height:180px;margin:0 auto}
+  .legend{display:flex;flex-direction:column;gap:10px;margin-top:16px;font-size:13px}
+  .legend .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-left:8px;vertical-align:middle}
+  .toggle{position:relative;width:44px;height:24px;background:#cbd5e1;border-radius:999px;cursor:pointer;transition:.2s;display:inline-block;vertical-align:middle}
+  .toggle.on{background:#10b981}
+  .toggle::after{content:'';position:absolute;top:2px;right:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .toggle.on::after{right:22px}
+  .modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:50;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+  .modal.on{display:flex}
+  .modal-inner{background:#fff;border-radius:20px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;padding:24px}
+  .modal-close{float:left;background:#f1f5f9;border:0;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:18px;font-weight:900}
+  .preview{width:100%;aspect-ratio:9/16;max-height:480px;background:#0f172a;border-radius:12px;margin:14px 0;display:grid;place-items:center;color:#fff;font-size:48px;background-size:cover;background-position:center}
+  .kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+  .kv b{color:#0f172a}
+  .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 24px;border-radius:12px;font-weight:800;font-size:13px;z-index:100;opacity:0;transition:.3s;pointer-events:none}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(4px)}
+  .mobile-toggle{display:none;position:fixed;top:12px;right:12px;z-index:40;background:#0f172a;color:#fff;border:0;padding:10px 14px;border-radius:10px;font-weight:800}
+  @media (max-width:820px){
+    .layout{grid-template-columns:1fr}
+    .sidebar{position:fixed;right:-280px;width:260px;transition:.3s;z-index:30}
+    .sidebar.open{right:0}
+    .mobile-toggle{display:block}
+    .main{padding:70px 16px 24px}
+  }
+</style>
+</head>
+<body>
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ القائمة</button>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-dot">د</div>DIAR TOK</div>
+    <div class="brand-sub">لوحة تحكم المسؤول</div>
+    <nav class="nav" id="nav">
+      <button data-p="overview" class="active"><span class="ico">📊</span>نظرة عامة</button>
+      <button data-p="reels"><span class="ico">🎬</span>الريلز</button>
+      <button data-p="lives"><span class="ico">📡</span>البث المسجل</button>
+      <button data-p="reports"><span class="ico">🚩</span>الإبلاغات</button>
+      <button data-p="analytics"><span class="ico">📈</span>التحليلات</button>
+      <button data-p="users"><span class="ico">👥</span>المستخدمون</button>
+      <button data-p="features"><span class="ico">⚙️</span>الميزات العامة</button>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <div>
+        <h1 id="pageTitle">نظرة عامة</h1>
+        <div class="muted" id="pageSub">ملخص أداء المنصة اليوم</div>
+      </div>
+      <div class="admin-badge"><div class="av">م</div>المسؤول</div>
+    </div>
+
+    <!-- Overview -->
+    <section class="page active" id="p-overview">
+      <div class="grid stats">
+        <div class="card stat"><div class="ico-badge b1">🎬</div><h3>الريلز المنشورة</h3><div class="val" id="s-reels">0</div><div class="delta up">▲ 12% هذا الأسبوع</div></div>
+        <div class="card stat"><div class="ico-badge b2">👁️</div><h3>إجمالي المشاهدات</h3><div class="val" id="s-views">0</div><div class="delta up">▲ 24% هذا الأسبوع</div></div>
+        <div class="card stat"><div class="ico-badge b3">📢</div><h3>الإعلانات النشطة</h3><div class="val" id="s-ads">0</div><div class="delta up">▲ 8%</div></div>
+        <div class="card stat"><div class="ico-badge b4">💬</div><h3>تحويلات واتساب</h3><div class="val" id="s-wa">0</div><div class="delta up">▲ 31%</div></div>
+        <div class="card stat"><div class="ico-badge b5">🚩</div><h3>إبلاغات معلقة</h3><div class="val" id="s-reports">0</div><div class="delta down">تحتاج مراجعة</div></div>
+      </div>
+      <div class="grid row2" style="margin-top:16px">
+        <div class="card">
+          <h2>المشاهدات خلال آخر ٧ أيام</h2>
+          <div class="bar-chart" id="weekChart"></div>
+          <div class="bar-labels"><span>السبت</span><span>الأحد</span><span>الاثنين</span><span>الثلاثاء</span><span>الأربعاء</span><span>الخميس</span><span>الجمعة</span></div>
+        </div>
+        <div class="card">
+          <h2>توزيع المحتوى</h2>
+          <div class="donut" id="donut"></div>
+          <div class="legend" id="donutLegend"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reels -->
+    <section class="page" id="p-reels">
+      <div class="card">
+        <div class="toolbar">
+          <div class="chip on" data-f="all">الكل</div>
+          <div class="chip" data-f="pending">قيد المراجعة</div>
+          <div class="chip" data-f="approved">منشورة</div>
+          <div class="chip" data-f="rejected">مرفوضة</div>
+          <input class="search" id="reelSearch" placeholder="🔍 ابحث بالعنوان أو المالك...">
+        </div>
+        <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>الريلز</th><th>المالك</th><th>المشاهدات</th><th>الحالة</th><th>التاريخ</th><th>الإجراءات</th></tr></thead>
+          <tbody id="reelsBody"></tbody>
+        </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lives -->
+    <section class="page" id="p-lives">
+      <div class="card">
+        <div class="toolbar">
+          <div class="chip on" data-lf="all">الكل</div>
+          <div class="chip" data-lf="approved">منشورة</div>
+          <div class="chip" data-lf="pending">قيد المراجعة</div>
+        </div>
+        <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>البث</th><th>المضيف</th><th>المدة</th><th>المشاهدات</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+          <tbody id="livesBody"></tbody>
+        </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reports -->
+    <section class="page" id="p-reports">
+      <div class="card">
+        <h2>الإبلاغات الواردة</h2>
+        <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>المحتوى</th><th>السبب</th><th>المُبلِّغ</th><th>عدد البلاغات</th><th>التاريخ</th><th>الإجراءات</th></tr></thead>
+          <tbody id="reportsBody"></tbody>
+        </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Analytics -->
+    <section class="page" id="p-analytics">
+      <div class="grid stats">
+        <div class="card stat"><div class="ico-badge b2">👁️</div><h3>مشاهدات هذا الشهر</h3><div class="val">248,540</div><div class="delta up">▲ 18%</div></div>
+        <div class="card stat"><div class="ico-badge b3">📢</div><h3>إعلانات هذا الشهر</h3><div class="val">1,284</div><div class="delta up">▲ 22%</div></div>
+        <div class="card stat"><div class="ico-badge b4">💬</div><h3>تحويلات واتساب</h3><div class="val">3,412</div><div class="delta up">▲ 31%</div></div>
+        <div class="card stat"><div class="ico-badge b1">🎯</div><h3>معدل التحويل</h3><div class="val">4.8%</div><div class="delta up">▲ 0.6%</div></div>
+      </div>
+      <div class="grid row2" style="margin-top:16px">
+        <div class="card">
+          <h2>المشاهدات مقابل تحويلات واتساب (آخر ١٢ أسبوع)</h2>
+          <div class="bar-chart" id="convChart"></div>
+          <div class="legend" style="flex-direction:row;gap:20px"><span><span class="dot" style="background:#6366f1"></span>مشاهدات</span><span><span class="dot" style="background:#25d366"></span>واتساب</span></div>
+        </div>
+        <div class="card">
+          <h2>الأكثر تحويلاً على واتساب</h2>
+          <div id="topWa"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h2>تحليل الإعلانات حسب المدينة</h2>
+        <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>المدينة</th><th>الإعلانات</th><th>المشاهدات</th><th>تحويلات واتساب</th><th>معدل التحويل</th></tr></thead>
+          <tbody id="cityBody"></tbody>
+        </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Users -->
+    <section class="page" id="p-users">
+      <div class="card">
+        <div class="toolbar">
+          <input class="search" id="userSearch" placeholder="🔍 ابحث عن مستخدم...">
+        </div>
+        <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>المستخدم</th><th>ريلز</th><th>مشاهدات</th><th>نشر ريلز</th><th>بث مباشر</th><th>إعلانات مدفوعة</th><th>واتساب مباشر</th><th>الحالة</th></tr></thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="page" id="p-features">
+      <div class="card">
+        <h2>الميزات العامة للمنصة</h2>
+        <p style="color:#64748b;font-size:13px;margin-top:-8px">تفعيل أو تعطيل الميزات لكل المستخدمين</p>
+        <div id="featuresBody" style="margin-top:16px"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="modal"><div class="modal-inner">
+  <button class="modal-close" onclick="closeModal()">×</button>
+  <div id="modalBody"></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====== Mock data ======
+const DB_KEY = 'diar_admin_db_v1';
+function seed(){
+  const covers = ['#6366f1','#ec4899','#10b981','#f59e0b','#0ea5e9','#8b5cf6','#ef4444','#14b8a6'];
+  const cities = ['الرياض','جدة','الدمام','مكة','المدينة','الخبر','أبها','تبوك'];
+  const owners = ['أحمد الفهد','سارة القحطاني','خالد العتيبي','نورة السالم','فهد الحربي','ريم الشمري','عبدالله الغامدي','مها الزهراني'];
+  const types = ['شقة','فيلا','دور','أرض','استراحة','مكتب'];
+  const reels = Array.from({length: 24}, (_,i)=>({
+    id:'r'+(i+1),
+    title: types[i%types.length]+' في '+cities[i%cities.length]+' - '+(3+i%5)+' غرف',
+    owner: owners[i%owners.length],
+    views: Math.floor(500+Math.random()*45000),
+    likes: Math.floor(20+Math.random()*3000),
+    wa: Math.floor(5+Math.random()*450),
+    status: ['pending','approved','approved','approved','rejected'][i%5],
+    color: covers[i%covers.length],
+    price: (200+Math.floor(Math.random()*1800))+',000 ر.س',
+    date: new Date(Date.now()-i*86400000*Math.floor(1+Math.random()*3)).toISOString().slice(0,10)
+  }));
+  const lives = Array.from({length: 8}, (_,i)=>({
+    id:'l'+(i+1),
+    title:'جولة مباشرة - '+cities[i%cities.length],
+    host: owners[(i+2)%owners.length],
+    duration: (15+Math.floor(Math.random()*60))+' دقيقة',
+    views: Math.floor(1000+Math.random()*20000),
+    status: i%4===0?'pending':'approved',
+    color: covers[(i+3)%covers.length],
+    date: new Date(Date.now()-i*86400000*2).toISOString().slice(0,10)
+  }));
+  const reasons = ['محتوى مضلل','سعر غير حقيقي','صور غير مطابقة','إساءة','تكرار نشر','معلومات كاذبة'];
+  const reports = Array.from({length: 10}, (_,i)=>({
+    id:'rp'+(i+1),
+    target: reels[i%reels.length].title,
+    targetId: reels[i%reels.length].id,
+    targetColor: reels[i%reels.length].color,
+    reason: reasons[i%reasons.length],
+    reporter: owners[(i+4)%owners.length],
+    count: 1+Math.floor(Math.random()*8),
+    date: new Date(Date.now()-i*86400000).toISOString().slice(0,10)
+  }));
+  const users = owners.map((n,i)=>({
+    id:'u'+(i+1), name:n,
+    reels: Math.floor(3+Math.random()*25),
+    views: Math.floor(2000+Math.random()*80000),
+    active: i!==5,
+    perms: { publishReels:true, live: i!==3, paidAds: i%2===0, directWa:true }
+  }));
+  const features = [
+    {key:'reels', name:'الريلز العقارية', desc:'تفعيل عرض الريلز في الصفحة الرئيسية', on:true},
+    {key:'live', name:'البث المباشر', desc:'السماح للمستخدمين ببث مباشر', on:true},
+    {key:'stories', name:'القصص اليومية', desc:'ميزة القصص لمدة 24 ساعة', on:true},
+    {key:'ads', name:'الإعلانات المدفوعة', desc:'شراء ترويج للإعلانات', on:true},
+    {key:'wa', name:'زر واتساب المباشر', desc:'تواصل مباشر مع صاحب العقار', on:true},
+    {key:'comments', name:'التعليقات', desc:'السماح بالتعليق على الريلز', on:true},
+    {key:'saved', name:'المحفوظات', desc:'حفظ الإعلانات المفضلة', on:true},
+    {key:'ai', name:'المساعد الذكي', desc:'اقتراحات AI للعقارات المناسبة', on:false},
+  ];
+  const cityStats = cities.map(c=>({
+    city:c,
+    ads: Math.floor(50+Math.random()*400),
+    views: Math.floor(5000+Math.random()*80000),
+    wa: Math.floor(80+Math.random()*1200)
+  })).map(x=>({...x, rate:((x.wa/x.views)*100).toFixed(1)+'%'}));
+  return {reels,lives,reports,users,features,cityStats};
+}
+function load(){ try{ const j=localStorage.getItem(DB_KEY); if(j) return JSON.parse(j);}catch(e){} const d=seed(); save(d); return d; }
+function save(d){ try{localStorage.setItem(DB_KEY, JSON.stringify(d));}catch(e){} }
+let DB = load();
+
+// ====== Toast ======
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),2200); }
+
+// ====== Nav ======
+const pageTitles = {overview:['نظرة عامة','ملخص أداء المنصة اليوم'],reels:['إدارة الريلز','الموافقة، الرفض، والحذف'],lives:['البث المباشر المسجل','مراجعة وإدارة البث المنشور'],reports:['الإبلاغات','مراجعة المحتوى المُبلَّغ عنه'],analytics:['التحليلات','مشاهدات، إعلانات، وتحويلات واتساب'],users:['المستخدمون','التحكم في صلاحيات كل مستخدم'],features:['الميزات العامة','تفعيل أو تعطيل ميزات المنصة']};
+document.querySelectorAll('#nav button').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('p-'+b.dataset.p).classList.add('active');
+    const [t,s]=pageTitles[b.dataset.p]; document.getElementById('pageTitle').textContent=t; document.getElementById('pageSub').textContent=s;
+    document.querySelector('.sidebar').classList.remove('open');
+    window.scrollTo({top:0});
+  };
+});
+
+// ====== Overview ======
+function renderOverview(){
+  document.getElementById('s-reels').textContent = DB.reels.filter(r=>r.status==='approved').length.toLocaleString('ar-EG');
+  document.getElementById('s-views').textContent = DB.reels.reduce((a,b)=>a+b.views,0).toLocaleString('ar-EG');
+  document.getElementById('s-ads').textContent = DB.reels.filter(r=>r.status==='approved').length.toLocaleString('ar-EG');
+  document.getElementById('s-wa').textContent = DB.reels.reduce((a,b)=>a+b.wa,0).toLocaleString('ar-EG');
+  document.getElementById('s-reports').textContent = DB.reports.length.toLocaleString('ar-EG');
+  const wc = document.getElementById('weekChart'); wc.innerHTML='';
+  const vals=[45,62,58,75,88,72,95];
+  const max=Math.max(...vals);
+  vals.forEach(v=>{ const d=document.createElement('div'); d.className='bar'; d.style.height=(v/max*100)+'%'; d.title=v+'k مشاهدة'; wc.appendChild(d); });
+  // donut
+  const parts=[{l:'شقق',v:42,c:'#6366f1'},{l:'فلل',v:28,c:'#ec4899'},{l:'أراضٍ',v:18,c:'#10b981'},{l:'مكاتب',v:12,c:'#f59e0b'}];
+  const total=parts.reduce((a,b)=>a+b.v,0); let acc=0;
+  const grad = parts.map(p=>{ const s=acc/total*360; acc+=p.v; const e=acc/total*360; return `${p.c} ${s}deg ${e}deg`; }).join(',');
+  document.getElementById('donut').style.background=`conic-gradient(${grad})`;
+  document.getElementById('donut').style.borderRadius='50%';
+  document.getElementById('donut').innerHTML='<div style="position:absolute;inset:30px;background:#fff;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:20px">100%</div>';
+  document.getElementById('donutLegend').innerHTML = parts.map(p=>`<div><span class="dot" style="background:${p.c}"></span>${p.l} <b style="float:left">${p.v}%</b></div>`).join('');
+}
+
+// ====== Reels ======
+let reelFilter='all';
+document.querySelectorAll('[data-f]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-f]').forEach(x=>x.classList.remove('on'));c.classList.add('on');reelFilter=c.dataset.f;renderReels();});
+document.getElementById('reelSearch').oninput=renderReels;
+function statusChip(s){ return `<span class="status s-${s}">${{pending:'قيد المراجعة',approved:'منشورة',rejected:'مرفوضة'}[s]}</span>`; }
+function renderReels(){
+  const q=document.getElementById('reelSearch').value.trim();
+  const rows=DB.reels.filter(r=>reelFilter==='all'||r.status===reelFilter).filter(r=>!q||r.title.includes(q)||r.owner.includes(q));
+  const b=document.getElementById('reelsBody');
+  if(!rows.length){b.innerHTML=`<tr><td colspan="6"><div class="empty">لا يوجد ريلز مطابق</div></td></tr>`;return;}
+  b.innerHTML=rows.map(r=>`
+    <tr>
+      <td><div class="cell-title"><span class="thumb" style="background:${r.color}"></span><div><b>${r.title}</b><small>${r.price}</small></div></div></td>
+      <td>${r.owner}</td>
+      <td>${r.views.toLocaleString('ar-EG')}</td>
+      <td>${statusChip(r.status)}</td>
+      <td>${r.date}</td>
+      <td><div class="actions">
+        <button class="btn btn-view" onclick="viewReel('${r.id}')">معاينة</button>
+        ${r.status!=='approved'?`<button class="btn btn-approve" onclick="setReel('${r.id}','approved')">قبول</button>`:''}
+        ${r.status!=='rejected'?`<button class="btn btn-reject" onclick="setReel('${r.id}','rejected')">رفض</button>`:''}
+        <button class="btn btn-delete" onclick="delReel('${r.id}')">حذف</button>
+      </div></td>
+    </tr>`).join('');
+}
+function setReel(id,s){ const r=DB.reels.find(x=>x.id===id); if(!r)return; r.status=s; save(DB); renderReels(); renderOverview(); toast(s==='approved'?'✓ تم قبول الريلز':'✕ تم رفض الريلز'); }
+function delReel(id){ if(!confirm('حذف هذا الريلز نهائياً؟'))return; DB.reels=DB.reels.filter(x=>x.id!==id); save(DB); renderReels(); renderOverview(); toast('🗑️ تم الحذف'); }
+function viewReel(id){ const r=DB.reels.find(x=>x.id===id); if(!r)return; openModal(`
+  <h2 style="margin:0">معاينة الريلز</h2>
+  <div class="preview" style="background:${r.color}">🏠</div>
+  <div class="kv"><span>العنوان</span><b>${r.title}</b></div>
+  <div class="kv"><span>المالك</span><b>${r.owner}</b></div>
+  <div class="kv"><span>السعر</span><b>${r.price}</b></div>
+  <div class="kv"><span>المشاهدات</span><b>${r.views.toLocaleString('ar-EG')}</b></div>
+  <div class="kv"><span>الإعجابات</span><b>${r.likes.toLocaleString('ar-EG')}</b></div>
+  <div class="kv"><span>تحويلات واتساب</span><b>${r.wa}</b></div>
+  <div class="kv"><span>الحالة</span>${statusChip(r.status)}</div>
+  <div class="actions" style="margin-top:16px;justify-content:flex-end">
+    <button class="btn btn-approve" onclick="setReel('${r.id}','approved');closeModal()">قبول</button>
+    <button class="btn btn-reject" onclick="setReel('${r.id}','rejected');closeModal()">رفض</button>
+    <button class="btn btn-delete" onclick="delReel('${r.id}');closeModal()">حذف</button>
+  </div>`);}
+
+// ====== Lives ======
+let liveFilter='all';
+document.querySelectorAll('[data-lf]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-lf]').forEach(x=>x.classList.remove('on'));c.classList.add('on');liveFilter=c.dataset.lf;renderLives();});
+function renderLives(){
+  const rows=DB.lives.filter(l=>liveFilter==='all'||l.status===liveFilter);
+  const b=document.getElementById('livesBody');
+  if(!rows.length){b.innerHTML=`<tr><td colspan="6"><div class="empty">لا يوجد بث</div></td></tr>`;return;}
+  b.innerHTML=rows.map(l=>`
+    <tr>
+      <td><div class="cell-title"><span class="thumb" style="background:${l.color}"></span><div><b>${l.title}</b><small>${l.date}</small></div></div></td>
+      <td>${l.host}</td>
+      <td>${l.duration}</td>
+      <td>${l.views.toLocaleString('ar-EG')}</td>
+      <td>${statusChip(l.status)}</td>
+      <td><div class="actions">
+        ${l.status!=='approved'?`<button class="btn btn-approve" onclick="setLive('${l.id}','approved')">قبول</button>`:''}
+        <button class="btn btn-reject" onclick="setLive('${l.id}','rejected')">إخفاء</button>
+        <button class="btn btn-delete" onclick="delLive('${l.id}')">حذف</button>
+      </div></td>
+    </tr>`).join('');
+}
+function setLive(id,s){ const l=DB.lives.find(x=>x.id===id); if(!l)return; l.status=s; save(DB); renderLives(); toast('✓ تم التحديث'); }
+function delLive(id){ if(!confirm('حذف البث؟'))return; DB.lives=DB.lives.filter(x=>x.id!==id); save(DB); renderLives(); toast('🗑️ تم الحذف'); }
+
+// ====== Reports ======
+function renderReports(){
+  const b=document.getElementById('reportsBody');
+  if(!DB.reports.length){b.innerHTML=`<tr><td colspan="6"><div class="empty">لا توجد إبلاغات</div></td></tr>`;return;}
+  b.innerHTML=DB.reports.map(r=>`
+    <tr>
+      <td><div class="cell-title"><span class="thumb" style="background:${r.targetColor}"></span><b>${r.target}</b></div></td>
+      <td><span class="status s-rejected">${r.reason}</span></td>
+      <td>${r.reporter}</td>
+      <td><b>${r.count}</b></td>
+      <td>${r.date}</td>
+      <td><div class="actions">
+        <button class="btn btn-view" onclick="viewReport('${r.id}')">مراجعة</button>
+        <button class="btn btn-approve" onclick="dismissReport('${r.id}')">تجاهل</button>
+        <button class="btn btn-delete" onclick="deleteReported('${r.id}')">حذف المحتوى</button>
+      </div></td>
+    </tr>`).join('');
+}
+function viewReport(id){ const r=DB.reports.find(x=>x.id===id); if(!r)return; const t=DB.reels.find(x=>x.id===r.targetId);
+  openModal(`<h2 style="margin:0">مراجعة الإبلاغ</h2>
+    <div class="preview" style="background:${r.targetColor}">⚠️</div>
+    <div class="kv"><span>المحتوى</span><b>${r.target}</b></div>
+    <div class="kv"><span>سبب الإبلاغ</span><b>${r.reason}</b></div>
+    <div class="kv"><span>المُبلِّغ</span><b>${r.reporter}</b></div>
+    <div class="kv"><span>عدد الإبلاغات</span><b>${r.count}</b></div>
+    ${t?`<div class="kv"><span>مالك المحتوى</span><b>${t.owner}</b></div><div class="kv"><span>المشاهدات</span><b>${t.views.toLocaleString('ar-EG')}</b></div>`:''}
+    <div class="actions" style="margin-top:16px;justify-content:flex-end">
+      <button class="btn btn-approve" onclick="dismissReport('${r.id}');closeModal()">تجاهل الإبلاغ</button>
+      <button class="btn btn-reject" onclick="hideReported('${r.id}');closeModal()">إخفاء المحتوى</button>
+      <button class="btn btn-delete" onclick="deleteReported('${r.id}');closeModal()">حذف نهائي</button>
+    </div>`);
+}
+function dismissReport(id){ DB.reports=DB.reports.filter(x=>x.id!==id); save(DB); renderReports(); renderOverview(); toast('تم تجاهل الإبلاغ'); }
+function hideReported(id){ const r=DB.reports.find(x=>x.id===id); if(!r)return; const t=DB.reels.find(x=>x.id===r.targetId); if(t){t.status='rejected';} DB.reports=DB.reports.filter(x=>x.id!==id); save(DB); renderReports(); renderReels(); renderOverview(); toast('تم إخفاء المحتوى'); }
+function deleteReported(id){ if(!confirm('حذف المحتوى نهائياً؟'))return; const r=DB.reports.find(x=>x.id===id); if(!r)return; DB.reels=DB.reels.filter(x=>x.id!==r.targetId); DB.reports=DB.reports.filter(x=>x.id!==id); save(DB); renderReports(); renderReels(); renderOverview(); toast('🗑️ تم الحذف'); }
+
+// ====== Analytics ======
+function renderAnalytics(){
+  const cc=document.getElementById('convChart'); cc.innerHTML='';
+  const pairs=Array.from({length:12},()=>({v:40+Math.random()*60,w:15+Math.random()*40}));
+  const max=Math.max(...pairs.flatMap(p=>[p.v,p.w]));
+  pairs.forEach(p=>{
+    const g=document.createElement('div'); g.style.cssText='flex:1;display:flex;gap:2px;align-items:flex-end;height:100%';
+    const b1=document.createElement('div'); b1.className='bar'; b1.style.height=(p.v/max*100)+'%';
+    const b2=document.createElement('div'); b2.className='bar'; b2.style.height=(p.w/max*100)+'%'; b2.style.background='linear-gradient(180deg,#25d366,#128c7e)';
+    g.appendChild(b1); g.appendChild(b2); cc.appendChild(g);
+  });
+  const top=[...DB.reels].sort((a,b)=>b.wa-a.wa).slice(0,5);
+  document.getElementById('topWa').innerHTML=top.map((r,i)=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9">
+      <div style="width:28px;height:28px;border-radius:50%;background:${r.color};color:#fff;display:grid;place-items:center;font-weight:900;font-size:12px">${i+1}</div>
+      <div style="flex:1"><b style="font-size:13px">${r.title}</b><div style="font-size:11px;color:#64748b">${r.owner}</div></div>
+      <div style="text-align:left"><b style="color:#25d366">${r.wa}</b><div style="font-size:10px;color:#64748b">واتساب</div></div>
+    </div>`).join('');
+  document.getElementById('cityBody').innerHTML=DB.cityStats.map(c=>`
+    <tr><td><b>${c.city}</b></td><td>${c.ads}</td><td>${c.views.toLocaleString('ar-EG')}</td><td style="color:#25d366;font-weight:800">${c.wa}</td><td>${c.rate}</td></tr>`).join('');
+}
+
+// ====== Users ======
+document.getElementById('userSearch').oninput=renderUsers;
+function renderUsers(){
+  const q=document.getElementById('userSearch').value.trim();
+  const rows=DB.users.filter(u=>!q||u.name.includes(q));
+  document.getElementById('usersBody').innerHTML=rows.map(u=>`
+    <tr>
+      <td><div class="cell-title"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#ec4899);color:#fff;display:grid;place-items:center;font-weight:900">${u.name[0]}</div><b>${u.name}</b></div></td>
+      <td>${u.reels}</td>
+      <td>${u.views.toLocaleString('ar-EG')}</td>
+      <td><span class="toggle ${u.perms.publishReels?'on':''}" onclick="tPerm('${u.id}','publishReels')"></span></td>
+      <td><span class="toggle ${u.perms.live?'on':''}" onclick="tPerm('${u.id}','live')"></span></td>
+      <td><span class="toggle ${u.perms.paidAds?'on':''}" onclick="tPerm('${u.id}','paidAds')"></span></td>
+      <td><span class="toggle ${u.perms.directWa?'on':''}" onclick="tPerm('${u.id}','directWa')"></span></td>
+      <td>${u.active?'<span class="status s-approved">نشط</span>':'<span class="status s-rejected">محظور</span>'} <button class="btn ${u.active?'btn-reject':'btn-approve'}" style="margin-right:6px" onclick="tActive('${u.id}')">${u.active?'حظر':'تفعيل'}</button></td>
+    </tr>`).join('');
+}
+function tPerm(id,k){ const u=DB.users.find(x=>x.id===id); if(!u)return; u.perms[k]=!u.perms[k]; save(DB); renderUsers(); toast(u.perms[k]?'✓ تم تفعيل الميزة':'✕ تم تعطيل الميزة'); }
+function tActive(id){ const u=DB.users.find(x=>x.id===id); if(!u)return; u.active=!u.active; save(DB); renderUsers(); toast(u.active?'✓ تم تفعيل المستخدم':'🚫 تم حظر المستخدم'); }
+
+// ====== Features ======
+function renderFeatures(){
+  document.getElementById('featuresBody').innerHTML=DB.features.map(f=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f1f5f9">
+      <div><b style="display:block;margin-bottom:2px">${f.name}</b><small style="color:#64748b">${f.desc}</small></div>
+      <span class="toggle ${f.on?'on':''}" onclick="tFeat('${f.key}')"></span>
+    </div>`).join('');
+}
+function tFeat(k){ const f=DB.features.find(x=>x.key===k); if(!f)return; f.on=!f.on; save(DB); renderFeatures(); toast(f.on?'✓ تم تفعيل '+f.name:'✕ تم تعطيل '+f.name); }
+
+// ====== Modal ======
+function openModal(html){ document.getElementById('modalBody').innerHTML=html; document.getElementById('modal').classList.add('on'); }
+function closeModal(){ document.getElementById('modal').classList.remove('on'); }
+document.getElementById('modal').onclick=(e)=>{ if(e.target.id==='modal') closeModal(); };
+
+// ====== Init ======
+renderOverview();renderReels();renderLives();renderReports();renderAnalytics();renderUsers();renderFeatures();
+</script>
+</body>
+</html>
