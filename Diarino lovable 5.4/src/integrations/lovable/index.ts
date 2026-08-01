@@ -2,7 +2,10 @@
 
 import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
 import { supabase } from "../supabase/client";
-const lovableAuth = createLovableAuth();
+
+const oauthBrokerUrl = import.meta.env.VITE_LOVABLE_OAUTH_BROKER_URL ?? "https://oauth.lovable.app/~oauth/initiate";
+const supportedOAuthOrigins = ["https://oauth.lovable.app", "https://lovable.dev"];
+const lovableAuth = createLovableAuth({ oauthBrokerUrl, supportedOAuthOrigins });
 
 type SignInOptions = {
   redirect_uri?: string;

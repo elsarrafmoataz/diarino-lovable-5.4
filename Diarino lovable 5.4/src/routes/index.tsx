@@ -207,12 +207,13 @@ function LoginScreen({ onGoogle, onSkip, signingIn, error }: {
         aria-label="تخطى تسجيل الدخول"
         title="تخطى — تصفح فقط"
         style={{
-          position: "absolute", top: 16, left: 16,
+          position: "absolute", top: 16, right: 16,
           background: "rgba(255,255,255,0.12)", color: "#fff",
           border: "1px solid rgba(255,255,255,0.25)",
           padding: "8px 14px", borderRadius: 999,
           fontSize: 13, fontWeight: 700, cursor: "pointer",
           backdropFilter: "blur(8px)", display: "flex", alignItems: "center", gap: 6,
+          zIndex: 5,
         }}
       >
         تخطى ⟶
